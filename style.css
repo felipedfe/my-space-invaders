@@ -1,3 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  position: relative;
+  background-color: #000;
+  /* overflow: hidden; */
+}
+
+.imgs-container {
+  display: none;
+}
+
 #myCanvas {
-  border: solid 2px pink;
+  position: absolute;
+  top: 50vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* transform: translate(-50%, -50%); */
+  border: solid 10px #202020;
+  border-radius: 5px;
+  /* margin-left: 50%; */
+  /* margin-top: 50%; */
+  /* transform: translateX(-50%) */
 }

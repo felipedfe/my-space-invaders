@@ -1,10 +1,14 @@
-const myCanvas = document.getElementById("myCanvas")
+const myCanvas = document.getElementById("myCanvas");
+const backgroundImg = document.getElementById("background");
+const playerSprite = document.getElementById("ship");
+const enemySpriteSheet = document.getElementById("enemies");
+let enemySpritePos = 0;
 console.log(myCanvas)
 
-ctx = myCanvas.getContext("2d")
-console.log(ctx)
+window.ctx = myCanvas.getContext("2d");
+console.log(ctx);
 
-ctx.fillStyle = "#0055FF";
+ctx.fillStyle = "#ecf53d";
 
 ///////
 
@@ -16,21 +20,25 @@ let idEnemyAttacks;
 
 const enemiesList = [];
 let aliveEnemies = [];
-const enemyWidth = 40;
-const enemyHeight = 35;
-const enemyGap = 15;
+const enemyWidth = 50;
+const enemyHeight = 45;
+const enemyGap = 0;
 const enemiesSpeed = 0.6;
 let enemiesDirectionRight = true;
 let attackingEnemyIndex = 0;
 
 let player;
-const playerWidth = 30;
-const playerHeight = 40;
+const playerWidth = 35;
+const playerHeight = 45;
 
 // let projectile;
 const projectileWidth = 7;
 const projectileHeight = 14;
 const projectileSpeed = 9;
+
+const spriteWidth = enemySpriteSheet.width / 10;
+const spriteHeight = enemySpriteSheet.height / 10;
+const enemyImageHash = {};
 
 // Classes
 class Player {
@@ -112,8 +120,14 @@ class Enemy {
 };
 
 // Funções
+function printBackground() {
+  ctx.drawImage(backgroundImg, 0, 0);
+  // ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+}
+
 function printPlayer() {
-  ctx.fillRect(player.x, player.y, player.width, player.height)
+  // ctx.fillRect(player.x, player.y, player.width, player.height)
+  ctx.drawImage(playerSprite, player.x, player.y, player.width, player.height)
 }
 
 function printProjectile(projectile) {
@@ -128,10 +142,14 @@ function buildEnemiesList() {
       const enemy = new Enemy(x, y);
       enemiesList.push(enemy);
       x += (enemyWidth + enemyGap);
+
+      // Para gerar partes de uma imagem gigante
+      // enemyImageHash[enemy.id] = [spriteWidth * i, spriteHeight * l, spriteWidth, spriteHeight];
     }
     y += (enemyHeight + enemyGap);
     x = 0;
   }
+  // console.log("=====>", enemyImageHash)
 
   // aliveEnemies é gerada para que os inimigos ainda vivos possam ficar em uma lista com 
   // índices ordenados (para que a função Math.random possa funcionar). A expressão
@@ -144,10 +162,16 @@ function buildEnemiesList() {
 function printEnemies() {
   for (let enemy of enemiesList) {
     if (enemy) {
-      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
+      ctx.drawImage(enemySpriteSheet, enemySpritePos, 0, 160, 140, enemy.x, enemy.y, enemy.width, enemy.height);
+
+
+      // ctx.drawImage(enemySpriteSheet, ...enemyImageHash[enemy.id],enemy.x, enemy.y, enemy.width, enemy.height)
+
     }
   }
 }
+
+
 
 function moveEnemies() {
   enemiesList.forEach((enemy) => {
@@ -172,6 +196,17 @@ function enemyAttacks() {
     attackingEnemyIndex = randomIndex;
     aliveEnemies[attackingEnemyIndex].throwProjectile()
     console.log(randomIndex)
+    // if (enemySpritePos === 0) {
+    //   enemySpritePos = 160
+    // } else {
+    //   enemySpritePos = 0
+    // }
+
+    if (enemySpritePos === 0) {
+      enemySpritePos = 160
+    } else {
+      enemySpritePos = 0
+    }
   }
 }
 
@@ -189,6 +224,8 @@ function checkPlayerProjectileColision() {
     ) {
       player.projectileInScreen = false;
       aliveEnemies = enemiesList.filter((enemy) => enemy.id !== enemiesList[index].id);
+      // Quadrado pisca quando inimigo é acertado
+      ctx.fillRect(enemy.x, enemy.y, enemyWidth, enemyHeight);
       delete enemiesList[index];
     }
   })
@@ -233,6 +270,7 @@ function updateScreen() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);     // limpa a tela
 
   movePlayer();
+  printBackground();
   printPlayer();
   printEnemies();
   moveEnemies();
@@ -245,7 +283,7 @@ function updateScreen() {
 
   // aliveEnemies[attackingEnemyIndex].moveProjectile();
   // printProjectile(aliveEnemies[attackingEnemyIndex]);
-  if (aliveEnemies[attackingEnemyIndex].projectileInScreen) {
+  if (aliveEnemies[attackingEnemyIndex]?.projectileInScreen) {
     const attackingEnemy = aliveEnemies[attackingEnemyIndex];
     attackingEnemy.moveProjectile();
     printProjectile(attackingEnemy.projectile);
@@ -254,11 +292,14 @@ function updateScreen() {
   // printProjectile(aliveEnemies[2]);
   // console.log(attackingEnemyIndex)
   checkEnemyPlayerColision();
+  window.requestAnimationFrame(updateScreen);
 }
 
 function startGame() {
+  // document.location.href = '/stage-2';
+  // funcao();
   buildEnemiesList();
-  player = new Player((CANVAS_WIDTH / 2), (CANVAS_HEIGHT - playerHeight))
+  player = new Player((CANVAS_WIDTH / 2), (CANVAS_HEIGHT - playerHeight) - 4)
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "a" || event.key === "A") {
@@ -284,10 +325,11 @@ function startGame() {
   })
 
   idEnemyAttacks = setInterval(enemyAttacks, 1000);
-  idUpdate = setInterval(updateScreen, 20);
+  // idUpdate = setInterval(updateScreen, 20);
+  window.requestAnimationFrame(updateScreen);
 }
 
 ////////////////////////////////////
 
-startGame();
+window.onload = startGame();
 // delete enemiesList[33]
