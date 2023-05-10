@@ -1,3 +1,11 @@
+import Player from './classes/player.js';
+import Enemy from './classes/enemy.js';
+import {
+  playerProjectileColision,
+  enemyProjectileColision,
+  enemyPlayerColision
+} from './helpers/collisionChecks.js';
+
 const myCanvas = document.getElementById("myCanvas");
 const backgroundImg = document.getElementById("background");
 const playerSprite = document.getElementById("ship");
@@ -10,11 +18,11 @@ console.log(ctx);
 
 ctx.fillStyle = "#ecf53d";
 
-///////
+///////////////////////////
 
-// Globals
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 500;
+// Config
+export const CANVAS_WIDTH = 800;
+export const CANVAS_HEIGHT = 500;
 let idUpdate;
 let idEnemyAttacks;
 
@@ -31,93 +39,9 @@ let player;
 const playerWidth = 35;
 const playerHeight = 45;
 
-// let projectile;
-const projectileWidth = 7;
-const projectileHeight = 14;
-const projectileSpeed = 9;
-
 const spriteWidth = enemySpriteSheet.width / 10;
 const spriteHeight = enemySpriteSheet.height / 10;
 const enemyImageHash = {};
-
-// Classes
-class Player {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.width = playerWidth;
-    this.height = playerHeight;
-    this.projectile = null;
-    this.projectileInScreen = false;
-    this.pressingLeft = false;
-    this.pressingRight = false;
-  }
-
-  throwProjectile = () => {
-    // Se o projétil não estiver na tela, um novo pode ser lançado
-    if (!this.projectileInScreen) {
-      this.projectile = new Projectile((this.x + ((this.width / 2) - projectileWidth / 2)), this.y);
-      this.projectileInScreen = true;
-    }
-  }
-
-  moveProjectile = () => {
-    this.projectile.y -= projectileSpeed;
-    if (this.projectile.y < 0) {
-      this.projectileInScreen = false;
-    }
-  }
-}
-
-class Projectile {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.width = projectileWidth;
-    this.height = projectileHeight;
-  }
-}
-
-class Enemy {
-  constructor(x, y) {
-    this.id = Enemy.generateId();
-    this.x = x;
-    this.y = y;
-    this.width = enemyWidth;
-    this.height = enemyHeight;
-    this.projectile = null;
-    this.projectileInScreen = false;
-  }
-
-  static generateId = () => {
-    if (!this.latestId) {
-      this.latestId = 1
-    } else {
-      this.latestId += 1
-    }
-    return this.latestId;
-  }
-
-  throwProjectile = () => {
-    // if (!this.projectileInScreen) {
-    //   this.projectile = new Projectile(20, 20);
-    //   this.projectileInScreen = true;
-    // }
-    this.projectile = new Projectile((this.x + ((this.width / 2) - projectileWidth / 2)), this.y + this.height);
-    this.projectileInScreen = true;
-  }
-
-  moveProjectile = () => {
-    // this.projectile.y += projectileSpeed;
-    // if (this.projectile.y > CANVAS_HEIGHT) {
-    //   this.projectileInScreen = false;
-    // }
-    this.projectile.y += projectileSpeed;
-    if (this.projectile.y > CANVAS_HEIGHT) {
-      this.projectileInScreen = false;
-    }
-  }
-};
 
 // Funções
 function printBackground() {
@@ -139,7 +63,7 @@ function buildEnemiesList() {
   let y = 0;
   for (let l = 0; l < 5; l += 1) {
     for (let i = 0; i < 10; i += 1) {
-      const enemy = new Enemy(x, y);
+      const enemy = new Enemy(x, y, enemyWidth, enemyHeight);
       enemiesList.push(enemy);
       x += (enemyWidth + enemyGap);
 
@@ -163,14 +87,11 @@ function printEnemies() {
   for (let enemy of enemiesList) {
     if (enemy) {
       ctx.drawImage(enemySpriteSheet, enemySpritePos, 0, 160, 140, enemy.x, enemy.y, enemy.width, enemy.height);
-
-
       // ctx.drawImage(enemySpriteSheet, ...enemyImageHash[enemy.id],enemy.x, enemy.y, enemy.width, enemy.height)
 
     }
   }
 }
-
 
 
 function moveEnemies() {
@@ -213,51 +134,7 @@ function enemyAttacks() {
 function movePlayer() {
   if (player.pressingLeft) player.x -= 5;
   if (player.pressingRight) player.x += 5;
-}
-
-function checkPlayerProjectileColision() {
-  enemiesList.forEach((enemy, index) => {
-    if (enemy.x < (player.projectile.x + player.projectile.width) &&
-      (enemy.x + enemy.width) > (player.projectile.x + player.projectile.width) &&
-      (enemy.y + enemy.height) > player.projectile.y &&
-      (enemy.y < player.projectile.y)
-    ) {
-      player.projectileInScreen = false;
-      aliveEnemies = enemiesList.filter((enemy) => enemy.id !== enemiesList[index].id);
-      // Quadrado pisca quando inimigo é acertado
-      ctx.fillRect(enemy.x, enemy.y, enemyWidth, enemyHeight);
-      delete enemiesList[index];
-    }
-  })
-}
-
-function checkEnemyProjectileColision(enemy) {
-  if (player.x < (enemy.projectile.x) &&
-    (player.x + player.width) > (enemy.projectile.x + enemy.projectile.width) &&
-    (player.y + player.height) > enemy.projectile.y &&
-    (player.y < enemy.projectile.y)
-  ) {
-    // player.projectileInScreen = false;
-    // aliveEnemies = enemiesList.filter((enemy) => enemy.id !== enemiesList[index].id);
-    // delete enemiesList[index];
-    console.log("BUM!")
-    // player = null;
-    gameOver()
-
-  }
-  // console.log(enemy.projectile.width)
-}
-
-function checkEnemyPlayerColision() {
-  enemiesList.forEach((enemy) => {
-    if (enemy.x + enemy.width > player.x &&
-      enemy.x < player.x &&
-      enemy.y + enemy.height > player.y
-    ) {
-      console.log("ACERTOU!")
-    }
-  })
-}
+};
 
 function gameOver() {
   clearInterval(idUpdate);
@@ -278,7 +155,16 @@ function updateScreen() {
   if (player.projectileInScreen) {
     player.moveProjectile();
     printProjectile(player.projectile);
-    checkPlayerProjectileColision()
+    playerProjectileColision(player, enemiesList);
+    enemiesList.forEach((enemy, index) => {
+      if (playerProjectileColision(player, enemy)) {
+        player.projectileInScreen = false;
+        aliveEnemies = enemiesList.filter((enemy) => enemy.id !== enemiesList[index].id);
+        // Quadrado pisca quando inimigo é acertado
+        ctx.fillRect(enemy.x, enemy.y, enemyWidth, enemyHeight);
+        delete enemiesList[index];
+      }
+    })
   }
 
   // aliveEnemies[attackingEnemyIndex].moveProjectile();
@@ -287,11 +173,19 @@ function updateScreen() {
     const attackingEnemy = aliveEnemies[attackingEnemyIndex];
     attackingEnemy.moveProjectile();
     printProjectile(attackingEnemy.projectile);
-    checkEnemyProjectileColision(attackingEnemy);
+    if (enemyProjectileColision(player, attackingEnemy)) {
+      console.log("BUM!")
+      gameOver()
+    }
   }
   // printProjectile(aliveEnemies[2]);
   // console.log(attackingEnemyIndex)
-  checkEnemyPlayerColision();
+  // checkEnemyPlayerColision();
+  enemiesList.forEach((enemy) => {
+    if (enemyPlayerColision(player, enemy)) {
+      console.log("ACERTOU!")
+    }
+  })
   window.requestAnimationFrame(updateScreen);
 }
 
@@ -300,7 +194,7 @@ function startGame() {
   // usar acima window.location
   // funcao();
   buildEnemiesList();
-  player = new Player((CANVAS_WIDTH / 2), (CANVAS_HEIGHT - playerHeight) - 4)
+  player = new Player((CANVAS_WIDTH / 2), ((CANVAS_HEIGHT - playerHeight) - 4), playerWidth, playerHeight);
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "a" || event.key === "A") {
