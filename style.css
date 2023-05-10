@@ -7,7 +7,6 @@
 body {
   position: relative;
   background-color: #000;
-  /* overflow: hidden; */
 }
 
 .imgs-container {
@@ -19,10 +18,6 @@ body {
   top: 50vh;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* transform: translate(-50%, -50%); */
   border: solid 10px #202020;
   border-radius: 5px;
-  /* margin-left: 50%; */
-  /* margin-top: 50%; */
-  /* transform: translateX(-50%) */
 }
