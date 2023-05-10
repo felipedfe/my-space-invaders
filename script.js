@@ -297,6 +297,7 @@ function updateScreen() {
 
 function startGame() {
   // document.location.href = '/stage-2';
+  // usar acima window.location
   // funcao();
   buildEnemiesList();
   player = new Player((CANVAS_WIDTH / 2), (CANVAS_HEIGHT - playerHeight) - 4)

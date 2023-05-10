@@ -1,3 +1,3 @@
-import funcao2 from './funcao2.js';
+import test from './test.js';
 
-funcao2();
+test();
