@@ -16,9 +16,7 @@ console.log(myCanvas)
 window.ctx = myCanvas.getContext("2d");
 console.log(ctx);
 
-ctx.fillStyle = "#ecf53d";
-
-///////////////////////////
+ctx.fillStyle = "red";
 
 // Config
 export const CANVAS_WIDTH = 800;
@@ -50,7 +48,6 @@ function printBackground() {
 }
 
 function printPlayer() {
-  // ctx.fillRect(player.x, player.y, player.width, player.height)
   ctx.drawImage(playerSprite, player.x, player.y, player.width, player.height)
 }
 
@@ -73,7 +70,6 @@ function buildEnemiesList() {
     y += (enemyHeight + enemyGap);
     x = 0;
   }
-  // console.log("=====>", enemyImageHash)
 
   // aliveEnemies é gerada para que os inimigos ainda vivos possam ficar em uma lista com 
   // índices ordenados (para que a função Math.random possa funcionar). A expressão
@@ -117,11 +113,6 @@ function enemyAttacks() {
     attackingEnemyIndex = randomIndex;
     aliveEnemies[attackingEnemyIndex].throwProjectile()
     console.log(randomIndex)
-    // if (enemySpritePos === 0) {
-    //   enemySpritePos = 160
-    // } else {
-    //   enemySpritePos = 0
-    // }
 
     if (enemySpritePos === 0) {
       enemySpritePos = 160
@@ -167,8 +158,6 @@ function updateScreen() {
     })
   }
 
-  // aliveEnemies[attackingEnemyIndex].moveProjectile();
-  // printProjectile(aliveEnemies[attackingEnemyIndex]);
   if (aliveEnemies[attackingEnemyIndex]?.projectileInScreen) {
     const attackingEnemy = aliveEnemies[attackingEnemyIndex];
     attackingEnemy.moveProjectile();
@@ -178,9 +167,7 @@ function updateScreen() {
       gameOver()
     }
   }
-  // printProjectile(aliveEnemies[2]);
-  // console.log(attackingEnemyIndex)
-  // checkEnemyPlayerColision();
+ 
   enemiesList.forEach((enemy) => {
     if (enemyPlayerColision(player, enemy)) {
       console.log("ACERTOU!")
@@ -190,9 +177,7 @@ function updateScreen() {
 }
 
 function startGame() {
-  // document.location.href = '/stage-2';
-  // usar acima window.location
-  // funcao();
+  // window.location = '/stage-2';
   buildEnemiesList();
   player = new Player((CANVAS_WIDTH / 2), ((CANVAS_HEIGHT - playerHeight) - 4), playerWidth, playerHeight);
 
@@ -220,11 +205,9 @@ function startGame() {
   })
 
   idEnemyAttacks = setInterval(enemyAttacks, 1000);
-  // idUpdate = setInterval(updateScreen, 20);
   window.requestAnimationFrame(updateScreen);
 }
 
-////////////////////////////////////
+//
 
 window.onload = startGame();
-// delete enemiesList[33]
